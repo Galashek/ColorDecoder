@@ -28,6 +28,12 @@
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
+            <Popup x:Name="palettePopup" StaysOpen="False" Placement="Mouse"
+                   AllowsTransparency="True" >
+                <Border Background="Azure" BorderThickness="2" BorderBrush="SlateGray" Padding="3">
+                    <WrapPanel x:Name="palette"  Width="120" ItemWidth="40" ItemHeight="40"/>
+                </Border>
+            </Popup>
         </Grid>
     </Grid>
 </Window>

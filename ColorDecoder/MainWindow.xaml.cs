@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Shapes;
 
 namespace ColorDecoder
 {
@@ -17,6 +19,17 @@ namespace ColorDecoder
         public MainWindow()
         {
             InitializeComponent();
+            foreach (var color in GameColors.AllColors)
+            {
+                var colorButton = new Ellipse
+                {
+                    Fill = color,
+                    Margin = new Thickness(2),
+                    Stroke = GameColors.StrokeColor
+                };
+                colorButton.MouseDown += SelectColor;
+                palette.Children.Add(colorButton);
+            }
             StartGame(null, null);
         }
         private void StartGame(object sender, RoutedEventArgs e)
@@ -27,7 +40,7 @@ namespace ColorDecoder
                 GamePanel.Children.RemoveAt(2);
             CheckButton.IsEnabled = true;
 
-            colorsToGuess = GetRandomColors();
+            colorsToGuess = GameColors.GetRandomColors();
             answerStack = new ColorStack();
             answerStack.Disable();
             GamePanel.Children.Add(answerStack.Stack);
@@ -37,8 +50,8 @@ namespace ColorDecoder
         }
         private void NewTry()
         {
-            tryStack?.Disable();
             var stack = new ColorStack();
+            stack.ButtonPressed += () => palettePopup.IsOpen = true;;
             Grid.SetRow(stack.Stack, tryCount);
             Grid.SetColumn(stack.Stack, 1);
             GameField.Children.Add(stack.Stack);
@@ -48,12 +61,11 @@ namespace ColorDecoder
         {
             CheckButton.IsEnabled = false;
             answerStack.SetColors(colorsToGuess);
-            // MessageBox.Show("End");
         }
         private void Check(object sender, RoutedEventArgs e)
         {
             var curStackColors = tryStack.Colors;
-            if (curStackColors.Any(c => c == ColorStack.EmptyColor)) return;
+            if (curStackColors.Any(c => c == GameColors.EmptyColor)) return;
             var colorAndPositionMatch = 0;
             var onlyColorMatch = curStackColors.Distinct().Count(color => colorsToGuess.Contains(color));
             for (int i = 0; i < 4; i++)
@@ -69,21 +81,15 @@ namespace ColorDecoder
             Grid.SetColumn(matchStack.Stack, 0);
             GameField.Children.Add(matchStack.Stack);
             tryCount++;
+            tryStack?.Disable();
             if (colorAndPositionMatch == 4 || tryCount == 6) EndGame();
             else NewTry();
         }
-        private SolidColorBrush[] GetRandomColors()
-        {
-            var colors = new SolidColorBrush[4];
-            var rnd = new Random();
-            var colorList = new List<SolidColorBrush>(ColorStack.AllColors);
-            for (int i = 0; i < 4; i++)
-            {
-                var index = rnd.Next(0, colorList.Count);
-                colors[i] = colorList[index];
-                colorList.RemoveAt(index);
-            }
-            return colors;
+
+        private void SelectColor(object sender, MouseButtonEventArgs e)
+        {        
+            tryStack.ChangeColor((sender as Ellipse)?.Fill);
+            palettePopup.IsOpen = false;
         }
     }
 }

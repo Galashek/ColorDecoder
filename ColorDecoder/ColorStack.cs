@@ -1,6 +1,8 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
@@ -8,19 +10,12 @@ namespace ColorDecoder
 {
     public class ColorStack
     {
-        public static readonly SolidColorBrush[] AllColors = 
-        { 
-            Brushes.Crimson, 
-            Brushes.Green, 
-            Brushes.RoyalBlue, 
-            Brushes.DarkViolet, 
-            Brushes.Yellow, 
-            Brushes.Orange 
-        };
-        public static readonly SolidColorBrush EmptyColor = Brushes.DarkGray;
         public Grid Stack { get; }
         public SolidColorBrush[] Colors => buttons.Select(b => b.Fill).Cast<SolidColorBrush>().ToArray();
         private readonly Shape[] buttons;
+        private Shape selectedButton;
+
+        public event Action ButtonPressed;
 
         public ColorStack()
         {
@@ -37,18 +32,20 @@ namespace ColorDecoder
                 {
                     Width = 40,
                     Height = 40,
-                    Fill = EmptyColor,
-                    Stroke = Brushes.DarkSlateGray
+                    Fill = GameColors.EmptyColor,
+                    Stroke = GameColors.StrokeColor
                 };
                 var j = i;
-                colorButton.MouseUp += (s, e) => ChangeColor(j);
-                colorButton.Tag = -1;
+                colorButton.MouseUp += (s, e) =>
+                {
+                    selectedButton = colorButton;
+                    ButtonPressed?.Invoke();
+                };
                 buttons[i] = colorButton;
                 Grid.SetColumn(colorButton, i);
                 Stack.Children.Add(colorButton);
             }
         }
-
         public void SetColors(SolidColorBrush[] colors)
         {
             if (colors.Length < 4) return;
@@ -57,19 +54,10 @@ namespace ColorDecoder
                 buttons[i].Fill = colors[i];
             }
         }
-
-        private void ChangeColor(int index)
+        public void ChangeColor(Brush color)
         {
-            var button = buttons[index];
-            var curColorIndex = (int)button.Tag;
-            int newColorIndex;
-            if (curColorIndex == -1)
-                newColorIndex = 0;
-            else newColorIndex = (curColorIndex + 1) % 6;
-            button.Fill = AllColors[newColorIndex];
-            button.Tag = newColorIndex;
+            selectedButton.Fill = color;
         }
-
         public void Disable()
         {
             foreach (var button in buttons)
