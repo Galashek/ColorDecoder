@@ -35,16 +35,18 @@ namespace ColorDecoder
         private void StartGame(object sender, RoutedEventArgs e)
         {
             tryCount = 0;
-            GameField.Children.Clear();
-            if (GamePanel.Children.Count > 2)
-                GamePanel.Children.RemoveAt(2);
+            TryResults.Children.Clear();
+            Tries.Children.Clear();
+            Answer.Children.Clear();
+
             CheckButton.IsEnabled = true;
+            CheckButton.Visibility = Visibility.Visible;
 
             colorsToGuess = GameColors.GetRandomColors();
             answerStack = new ColorStack();
             answerStack.Disable();
-            GamePanel.Children.Add(answerStack.Stack);
-            // answerStack.SetColors(colorsToGuess);
+            Answer.Children.Add(answerStack.Stack);
+            //answerStack.SetColors(colorsToGuess);
             
             NewTry();
         }
@@ -53,13 +55,14 @@ namespace ColorDecoder
             var stack = new ColorStack();
             stack.ButtonPressed += () => palettePopup.IsOpen = true;;
             Grid.SetRow(stack.Stack, tryCount);
-            Grid.SetColumn(stack.Stack, 1);
-            GameField.Children.Add(stack.Stack);
+            Tries.Children.Add(stack.Stack);
             tryStack = stack;
+            Grid.SetRow(CheckButton, tryCount);
         }
         private void EndGame()
         {
             CheckButton.IsEnabled = false;
+            CheckButton.Visibility = Visibility.Hidden;
             answerStack.SetColors(colorsToGuess);
         }
         private void Check(object sender, RoutedEventArgs e)
@@ -78,8 +81,7 @@ namespace ColorDecoder
             }
             var matchStack = new MatchStack(onlyColorMatch, colorAndPositionMatch);
             Grid.SetRow(matchStack.Stack, tryCount);
-            Grid.SetColumn(matchStack.Stack, 0);
-            GameField.Children.Add(matchStack.Stack);
+            TryResults.Children.Add(matchStack.Stack);
             tryCount++;
             tryStack?.Disable();
             if (colorAndPositionMatch == 4 || tryCount == 6) EndGame();
@@ -87,7 +89,7 @@ namespace ColorDecoder
         }
 
         private void SelectColor(object sender, MouseButtonEventArgs e)
-        {        
+        {
             tryStack.ChangeColor((sender as Ellipse)?.Fill);
             palettePopup.IsOpen = false;
         }
