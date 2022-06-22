@@ -30,7 +30,7 @@ namespace ColorDecoder
             answerColors = new ColorSet();
             answerColors.Disable();
             answer.Children.Add(answerColors);
-            answerColors.SetColors(colorsToGuess);
+            //answerColors.SetColors(colorsToGuess);
             FillPalette();
             NewTry();
         }
