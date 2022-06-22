@@ -34,11 +34,12 @@ namespace ColorDecoder
                 IsHitTestVisible = false
             };
 
-            text = new TextBlock();
-            text.Text = "?";
-            text.FontSize = 14;
-            text.HorizontalAlignment = HorizontalAlignment.Center;
-            text.VerticalAlignment = VerticalAlignment.Center;
+            text = new TextBlock
+            {
+                Text = "?",
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
 
             var content = new Grid();
             content.Children.Add(colorShape);

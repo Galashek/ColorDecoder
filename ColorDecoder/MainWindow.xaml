@@ -5,45 +5,114 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ColorDecoder"
         mc:Ignorable="d"
-        Title="Guess Colors" Height="600" Width="550" ResizeMode="NoResize" Background="#eeeeee">
+        Title="ColorGuesser" Height="600" Width="550" 
+        ResizeMode="NoResize" 
+        Background="#eeeeee" 
+        Icon="Images/app_icon.png">
     <Window.Resources>
+
+        <ControlTemplate TargetType="Button" x:Key="buttonTemplate">
+            <Border x:Name="buttonBorder" 
+                    Width="50"
+                    Height="50"
+                    Cursor="Hand"
+                    Background="Transparent"
+                    CornerRadius="10">
+                <ContentPresenter/>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="true">
+                    <Setter TargetName="buttonBorder" Property="Background" Value="#dddddd"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
         <Style TargetType="local:ColorButton">
-            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template" Value="{StaticResource buttonTemplate}"/>
+        </Style>
+        
+        <Style TargetType="Button" x:Key="restartButtonStyle">
+            <Setter Property="ToolTip" Value="Restart"/>
+            <Setter Property="Margin" Value="30"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="Content">
+                <Setter.Value>
+                    <Image Source="Images/reset.png" Width="40" Height="40"/>
+                </Setter.Value>
+            </Setter>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="local:ColorButton">
-                        <Border x:Name="buttonBorder" Background="Transparent">
-                            <ContentPresenter
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                RecognizesAccessKey="True"/>
+                    <ControlTemplate TargetType="Button">
+                        <Border Width="50" Height="50" Cursor="Hand">
+                            <ContentPresenter/>
                         </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="true">
-                                <Setter TargetName="buttonBorder" Property="Background" Value="#dddddd" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+        </Style>     
+                
+        <Style TargetType="Button" x:Key="checkBtnStyle">
+            <Setter Property="Template" Value="{StaticResource buttonTemplate}"/>
+            <Setter Property="IsEnabled" Value="True"/>
+            <Setter Property="Visibility" Value="Visible"/>
+            <Setter Property="ToolTip" Value="Check"/>
+            <Setter Property="Content">
+                <Setter.Value>
+                    <Image Source="Images/check.png" Width="40" Height="40"/>
+                </Setter.Value>
+            </Setter>            
         </Style>
+
+        <Style TargetType="Button" x:Key="checkBtnStyle_select" 
+               BasedOn="{StaticResource checkBtnStyle}">
+            <Setter Property="IsEnabled" Value="False"/>
+            <Setter Property="Visibility" Value="Visible"/>            
+            <Setter Property="Content">
+                <Setter.Value>
+                    <Image Source="Images/arrow.png" Width="40" Height="40"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="Button" x:Key="hidden">
+            <Setter Property="IsEnabled" Value="False"/>
+            <Setter Property="Visibility" Value="Hidden"/>
+        </Style>
+
+        <Style TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+        </Style>
+
     </Window.Resources>
+    
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="80"/>
+            <RowDefinition Height="110"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0">
-            <Button Width="50" Height="30" HorizontalAlignment="Left" Margin="10" Click="StartGame" Cursor="Hand" >Restart</Button>
-            <StackPanel x:Name="Answer" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+        <Grid x:Name="panel" Grid.Row="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition Height="50"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <TextBlock x:Name="gameStateText" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <StackPanel x:Name="answer" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBlock x:Name="tryCountText" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Grid>
+            <Button Click="StartGame" Style="{StaticResource restartButtonStyle}"/>
         </Grid>
+        
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="5*"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="5*"/>
             </Grid.ColumnDefinitions>
-            <Grid x:Name="Tries" Grid.Column="0">
+            
+            <Grid x:Name="tries" Grid.Column="0">
                 <Grid.RowDefinitions>
                     <RowDefinition/>
                     <RowDefinition/>
@@ -52,13 +121,17 @@
                     <RowDefinition/>
                     <RowDefinition/>
                 </Grid.RowDefinitions>
-                <Popup x:Name="palettePopup" StaysOpen="False" Placement="Mouse"
-                   AllowsTransparency="True" >
-                    <Border Background="Azure" BorderThickness="2" BorderBrush="SlateGray" Padding="3">
-                        <WrapPanel x:Name="palette"  Width="120" ItemWidth="40" ItemHeight="40"/>
+                <Popup x:Name="palettePopup" StaysOpen="False" Placement="MousePoint"
+                   AllowsTransparency="True">
+                    <Border Background="#eeeeee" 
+                            BorderThickness="2" 
+                            BorderBrush="SlateGray" 
+                            CornerRadius="10">
+                        <WrapPanel x:Name="palette" Width="150" ItemWidth="50" ItemHeight="50"/>
                     </Border>
                 </Popup>
             </Grid>
+            
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition/>
@@ -68,16 +141,10 @@
                     <RowDefinition/>
                     <RowDefinition/>
                 </Grid.RowDefinitions>
-                <Button x:Name="CheckButton" Grid.Row="0" 
-                        Click="Check" 
-                        Cursor="Hand" 
-                        BorderBrush="{x:Null}" 
-                        Background="#FF8EF3D3"
-                        Content="Check"
-                        >
-                </Button>
+                <Button x:Name="checkButton" Grid.Row="0" Click="Check"/>
             </Grid>
-            <Grid x:Name="TryResults" Grid.Column="2">
+            
+            <Grid x:Name="tryResults" Grid.Column="2">
                 <Grid.RowDefinitions>
                     <RowDefinition/>
                     <RowDefinition/>
@@ -87,6 +154,7 @@
                     <RowDefinition/>
                 </Grid.RowDefinitions>
             </Grid>
+            
         </Grid>
     </Grid>
 </Window>
