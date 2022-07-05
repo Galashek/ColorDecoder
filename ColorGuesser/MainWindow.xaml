@@ -8,7 +8,7 @@
         Title="ColorGuesser" Height="600" Width="550" 
         ResizeMode="NoResize" 
         Background="#eeeeee" 
-        Icon="Images/app_icon.png">
+        Icon="Images/app_icon.ico">
     <Window.Resources>
 
         <ControlTemplate TargetType="Button" x:Key="buttonTemplate">
