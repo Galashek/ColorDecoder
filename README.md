@@ -20,4 +20,4 @@ Game field is divided into 2 columns: attempts and matches
 
 ## Download
 
-[ColorGuesser.exe]()
+[ColorGuesser.exe](https://github.com/Galashek/ColorGuesser/releases/download/v1.0/ColorGuesser.exe)
